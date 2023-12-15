@@ -72,7 +72,6 @@ impl<V> Grid<V> {
         y * self.width + x
     }
 
-    /*
     fn slice_index_to_coords(&self, index: usize) -> (usize, usize) {
         assert!(index < self.width * self.height);
 
@@ -80,7 +79,7 @@ impl<V> Grid<V> {
         let y = index / self.width;
 
         (x, y)
-    }*/
+    }
 
     /// Gets a reference to the grid element at column `x` and row `y`.
     ///
@@ -130,6 +129,26 @@ impl<V> Grid<V> {
     {
         Grid::<Vnew> {
             values: self.values.iter().map(map).collect(),
+            width: self.width,
+            height: self.height,
+        }
+    }
+
+    /// Creates a new [`Grid`] by applying a function to every element and its position.
+    pub fn map_indexed<M, Vnew>(&self, map: M) -> Grid<Vnew>
+    where
+        M: Fn(&V, usize, usize) -> Vnew,
+    {
+        Grid::<Vnew> {
+            values: self
+                .values
+                .iter()
+                .enumerate()
+                .map(|(index, value)| {
+                    let (x, y) = self.slice_index_to_coords(index);
+                    map(value, x, y)
+                })
+                .collect(),
             width: self.width,
             height: self.height,
         }
@@ -366,6 +385,27 @@ mod tests {
         assert_eq!(*grid.get(8, 1), "eye");
         assert_eq!(*grid.get(8, 3), "mouth");
         assert_eq!(*grid.get(5, 2), "skin");
+    }
+
+    #[test]
+    fn map_indexed() {
+        let grid = Grid::parse(SMILEY_GRID);
+
+        let grid = grid.map_indexed(|c, x, y| {
+            let value = match c {
+                b'.' => "skin",
+                b'o' => "mouth",
+                b'X' => "eye",
+                _ => "other",
+            };
+
+            (x + y, value)
+        });
+
+        assert_eq!(*grid.get(0, 0), (0, "other"));
+        assert_eq!(*grid.get(8, 1), (9, "eye"));
+        assert_eq!(*grid.get(8, 3), (11, "mouth"));
+        assert_eq!(*grid.get(5, 2), (7, "skin"));
     }
 
     #[test]
