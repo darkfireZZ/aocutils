@@ -28,9 +28,14 @@ impl Grid<u8> {
         let width = first_line.len();
 
         let mut values = first_line.to_owned();
-        for line in lines {
+        for line in &mut lines {
             if line.len() != width {
-                panic!("Invalid grid, found lines with different lengths");
+                // The last line is allowed to be terminated by a newline
+                if line.is_empty() && lines.next().is_none() {
+                    break;
+                } else {
+                    panic!("Invalid grid, found lines with different lengths");
+                }
             }
             values.extend_from_slice(line);
         }
@@ -436,5 +441,10 @@ mod tests {
     #[should_panic]
     fn parse_invalid_grid() {
         Grid::parse(b"..\n.");
+    }
+
+    #[test]
+    fn last_line_terminated_by_newline() {
+        Grid::parse(b"...\n...\n");
     }
 }
