@@ -48,6 +48,53 @@ impl Grid<u8> {
             height,
         }
     }
+
+    /// Interprets the values of the grid as ASCII and formats the grid to a [`String`].
+    ///
+    /// Rows are separated by newline characters (`'\n'`).
+    ///
+    /// ```
+    /// # use aoclib::Grid;
+    /// let ascii_grid = b"\
+    ///     123\n\
+    ///     456\n\
+    ///     789\n";
+    /// let grid = Grid::parse(ascii_grid);
+    ///
+    /// let formatted_grid = grid.format_ascii();
+    ///
+    /// assert_eq!(formatted_grid.as_bytes(), ascii_grid);
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if the grid contains values that are not in the ASCII range.
+    ///
+    /// ```should_panic
+    /// # use aoclib::Grid;
+    /// let mut grid = Grid::parse(b"12\n34\n");
+    /// *grid.get_mut(0, 1) = 255;
+    /// grid.format_ascii(); // This will panic!
+    /// ```
+    pub fn format_ascii(&self) -> String {
+        if !self.values.is_ascii() {
+            panic!("Grid contains non-ASCII bytes");
+        }
+
+        let mut formatted = String::with_capacity((self.width + 1) * self.height);
+
+        let mut remainder = self.values.as_slice();
+        while !remainder.is_empty() {
+            formatted.push_str(
+                std::str::from_utf8(&remainder[..self.width])
+                    .expect("checked before that all chars are ASCII"),
+            );
+            formatted.push('\n');
+            remainder = &remainder[self.width..];
+        }
+
+        formatted
+    }
 }
 
 impl<V> Grid<V> {
