@@ -3,7 +3,7 @@ use std::ops::Index;
 /// A type to deal with the 2D ASCII grids that are very common in Advent of Code.
 ///
 /// The grid is internally stored in row-major order.
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub struct Grid<V> {
     values: Vec<V>,
     width: usize,
