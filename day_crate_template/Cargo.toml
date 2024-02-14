@@ -1,0 +1,10 @@
+[package]
+name = "aoc_day_template"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev]
+opt-level = 3
+
+[dependencies]
+aoclib = { git = "https://github.com/darkfireZZ/aocutils", rev = "3760c4bff1206cd85b1085a6e9c1b353203b9999" }
